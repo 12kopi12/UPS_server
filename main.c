@@ -1,20 +1,26 @@
 #include <stdio.h>
-#include <socket.h>
 #include <pthread.h>
 #include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <string.h>
+#include <malloc.h>
+
 #include "config.h"
+#include "client_manager.h"
+#include "communication.h"
 
 /**
  * Initialize the server
- * @return 0 if successful, -1 otherwise
  */
-int init_server() {
-
+void * init_server(void *arg) {
+    // port for opening the server with port as argument
+    int port = (int)(intptr_t) arg;
 
     int server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket == -1) {
         perror("Socket creation failed");
-        return -1;
+        return NULL;
     }
 
     // Set socket options for reusing the address
@@ -30,7 +36,7 @@ int init_server() {
     // Bind the socket to the address and port
     if (bind(server_socket, (struct sockaddr *)&server_address, sizeof(server_address)) == -1) {
         perror("Socket binding failed");
-        return -1;
+        return NULL;
     }
     printf("Server is running on port %d\n", PORT);
 
@@ -38,7 +44,7 @@ int init_server() {
     if (listen(server_socket, MAX_CLIENTS) == -1) {
         perror("Socket listening failed");
         close(server_socket);
-        return -1;
+        return NULL;
     }
 
     // Accept incoming connections
@@ -50,16 +56,44 @@ int init_server() {
             perror("Socket accepting failed");
         } else {
             printf("Client connected\n");
-            // Handle the client in a separate thread
-            pthread_t client_thread;
-            // todo handle_client
-            if (pthread_create(&client_thread, NULL, handle_client, &client_socket) != 0) {
-                perror("Thread creation failed");
-                close(client_socket);
-                close(server_socket);
-                return -1;
-            }
+            char message[LOGIN_MESSAGE_SIZE] = {0};
 
+            // receive the message from the client
+            recv(client_socket, message, sizeof(message), 0);
+
+            // check if the message is a login message
+            if (strncmp(message, "LOGIN;", 6) == 0) {
+                // delimiter the message
+                char *token = strtok(message, MESS_DELIMITER);
+                token = strtok(NULL, MESS_END_CHAR);
+
+                // Read the client's username
+                char username[PLAYER_NAME_SIZE + 1];
+                strncpy(username, token, PLAYER_NAME_SIZE);
+                username[PLAYER_NAME_SIZE] = '\0';
+
+                // Handle the client in a separate thread
+                pthread_t client_thread;
+
+                // Add the client to the client manager
+                if (!add_client(client_socket, username, &client_thread)) {
+                    perror("Failed to add client");
+                    close(client_socket);
+                    continue;
+                }
+
+                // Create a new thread for the client
+                if (pthread_create(&client_thread, NULL, receive_messages, get_client_by_socket(client_socket)) != 0) {
+                    perror("Thread creation failed");
+                    close(client_socket);
+                    remove_client_by_socket(client_socket);
+                    continue;
+                }
+
+            } else {
+                perror("Invalid message");
+                close(client_socket);
+            }
         }
     }
 
@@ -69,6 +103,16 @@ int init_server() {
 
 int main(void) {
     pthread_t server_thread;
-    pthread_create(&server_thread, NULL, init_server, PORT);
+    pthread_create(&server_thread, NULL, init_server, (void *)(intptr_t) PORT);
+
+    char input[1024];
+    while (scanf("%s", input) != -1) {
+        if (strcmp(input, "exit") == 0) {
+            break;
+        }
+    }
+
+    pthread_join(server_thread, NULL);
+    pthread_cancel(server_thread);
     return 0;
 }
