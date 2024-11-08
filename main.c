@@ -11,9 +11,9 @@
 #include "communication.h"
 
 /**
- * Initialize the server
+ * Initialize and starts the server
  */
-void * init_server(void *arg) {
+void * run_server(void *arg) {
     // port for opening the server with port as argument
     int port = (int)(intptr_t) arg;
 
@@ -56,13 +56,17 @@ void * init_server(void *arg) {
             perror("Socket accepting failed");
         } else {
             printf("Client connected\n");
+
+            // recieve init message from the client
             char message[LOGIN_MESSAGE_SIZE] = {0};
+//            send_mess_by_socket(client_socket, INIT_MESSAGE);
 
             // receive the message from the client
             recv(client_socket, message, sizeof(message), 0);
 
             // check if the message is a login message
-            if (strncmp(message, "LOGIN;", 6) == 0) {
+            if (strncmp(message, "LOGIN", 5) == 0) {
+                printf("Login message received\n");
                 // delimiter the message
                 char *token = strtok(message, MESS_DELIMITER);
                 token = strtok(NULL, MESS_END_CHAR);
@@ -74,6 +78,7 @@ void * init_server(void *arg) {
 
                 // Handle the client in a separate thread
                 pthread_t client_thread;
+                printf("Client username: %s\n", username);
 
                 // Add the client to the client manager
                 if (!add_client(client_socket, username, &client_thread)) {
@@ -81,29 +86,29 @@ void * init_server(void *arg) {
                     close(client_socket);
                     continue;
                 }
+                client *cl = get_client_by_socket(client_socket);
 
                 // Create a new thread for the client
-                if (pthread_create(&client_thread, NULL, receive_messages, get_client_by_socket(client_socket)) != 0) {
+                if (pthread_create(&client_thread, NULL, receive_messages, cl) != 0) {
                     perror("Thread creation failed");
                     close(client_socket);
                     remove_client_by_socket(client_socket);
                     continue;
                 }
 
+                send_mess(cl, "LOGIN;OK\n");
             } else {
                 perror("Invalid message");
                 close(client_socket);
             }
         }
     }
-
-
 }
 
 
 int main(void) {
     pthread_t server_thread;
-    pthread_create(&server_thread, NULL, init_server, (void *)(intptr_t) PORT);
+    pthread_create(&server_thread, NULL, run_server, (void *) (intptr_t) PORT);
 
     char input[1024];
     while (scanf("%s", input) != -1) {

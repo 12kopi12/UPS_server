@@ -4,6 +4,12 @@
 #include "config.h"
 
 /**
+ * @brief Send message to the client by socket
+ * @return void
+ */
+void *send_mess_by_socket(int socket, char *mess);
+
+/**
  * @brief Send message to the client
  * @return
  */

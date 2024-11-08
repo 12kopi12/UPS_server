@@ -24,6 +24,7 @@
 #define MESS_DELIMITER ";"
 #define MESS_END_CHAR "\n"
 #define LOGIN_MESSAGE_SIZE (7 + PLAYER_NAME_SIZE)
+#define INIT_MESSAGE "TIC-TAC-TOE;INIT\n"
 
 /**
  * @brief Server constants
