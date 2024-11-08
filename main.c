@@ -57,50 +57,84 @@ void * run_server(void *arg) {
         } else {
             printf("Client connected\n");
 
+            // todo prijmout jen INIT zpravu -> vytvorit hrace bez jmena a pripojit do seznamu -> poslat zpet INIT;OK\n
+
             // recieve init message from the client
-            char message[LOGIN_MESSAGE_SIZE] = {0};
+            char message[INIT_MESSAGE_SIZE] = {0};
 //            send_mess_by_socket(client_socket, INIT_MESSAGE);
 
-            // receive the message from the client
+            // receive the init message from the client
             recv(client_socket, message, sizeof(message), 0);
+            printf("Message: %s\n", message);
 
-            // check if the message is a login message
-            if (strncmp(message, "LOGIN", 5) == 0) {
-                printf("Login message received\n");
-                // delimiter the message
-                char *token = strtok(message, MESS_DELIMITER);
-                token = strtok(NULL, MESS_END_CHAR);
+            if (strcmp(message, INIT_MESSAGE) == 0) {
+                printf("Init message received\n");
+                send_mess_by_socket(client_socket, INIT_MESSAGE_RESPONSE);
 
-                // Read the client's username
-                char username[PLAYER_NAME_SIZE + 1];
-                strncpy(username, token, PLAYER_NAME_SIZE);
-                username[PLAYER_NAME_SIZE] = '\0';
-
-                // Handle the client in a separate thread
                 pthread_t client_thread;
-                printf("Client username: %s\n", username);
 
                 // Add the client to the client manager
+                char username[PLAYER_NAME_SIZE] = {0};
                 if (!add_client(client_socket, username, &client_thread)) {
                     perror("Failed to add client");
                     close(client_socket);
                     continue;
                 }
+
                 client *cl = get_client_by_socket(client_socket);
 
                 // Create a new thread for the client
                 if (pthread_create(&client_thread, NULL, receive_messages, cl) != 0) {
                     perror("Thread creation failed");
+                    // todo mozna nejaka univerzalni ukoncovaci zprava
                     close(client_socket);
                     remove_client_by_socket(client_socket);
                     continue;
                 }
-
-                send_mess(cl, "LOGIN;OK\n");
             } else {
+                // not init message -> close the connection
                 perror("Invalid message");
                 close(client_socket);
             }
+
+
+//            // check if the message is a login message
+//            if (strncmp(message, "LOGIN", 5) == 0) {
+//                printf("Login message received\n");
+//                // delimiter the message
+//                char *token = strtok(message, MESS_DELIMITER);
+//                token = strtok(NULL, MESS_END_CHAR);
+//
+//                // Read the client's username
+//                char username[PLAYER_NAME_SIZE + 1];
+//                strncpy(username, token, PLAYER_NAME_SIZE);
+//                username[PLAYER_NAME_SIZE] = '\0';
+//
+//                // Handle the client in a separate thread
+//                pthread_t client_thread;
+//                printf("Client username: %s\n", username);
+//
+//                // Add the client to the client manager
+//                if (!add_client(client_socket, username, &client_thread)) {
+//                    perror("Failed to add client");
+//                    close(client_socket);
+//                    continue;
+//                }
+//                client *cl = get_client_by_socket(client_socket);
+//
+//                // Create a new thread for the client
+//                if (pthread_create(&client_thread, NULL, receive_messages, cl) != 0) {
+//                    perror("Thread creation failed");
+//                    close(client_socket);
+//                    remove_client_by_socket(client_socket);
+//                    continue;
+//                }
+//
+//                send_mess(cl, "LOGIN;OK\n");
+//            } else {
+//                perror("Invalid message");
+//                close(client_socket);
+//            }
         }
     }
 }

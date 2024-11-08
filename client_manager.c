@@ -62,7 +62,9 @@ int remove_client(client *cl) {
     pthread_mutex_lock(&clients_mutex);
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i] == cl) {
-            pthread_cancel(*cl->client_thread);
+            if (cl->client_thread != NULL) {
+                pthread_cancel(*cl->client_thread);
+            }
             free(clients[i]);
             clients[i] = NULL;
             pthread_mutex_unlock(&clients_mutex);
