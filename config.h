@@ -11,7 +11,11 @@
 #define MAX_CLIENTS 20
 #define GAME_PLAYING 1
 #define GAME_WAITING 0
-#define GAME_OVER -1
+#define GAME_OVER 2
+#define GAME_NULL_ID 0
+#define START_CHAR 'X'
+#define END_CHAR '0'
+#define EMPTY_CHAR ' '
 
 #define TRUE 1
 #define FALSE 0
@@ -24,9 +28,7 @@
 #define MESS_DELIMITER ";"
 #define MESS_END_CHAR "\n"
 #define LOGIN_MESSAGE_SIZE (7 + PLAYER_NAME_SIZE)
-#define INIT_MESSAGE_SIZE 17
-#define INIT_MESSAGE "TIC-TAC-TOE;INIT\n"
-#define INIT_MESSAGE_RESPONSE "TIC-TAC-TOE;INIT;OK\n"
+#define LOGIN_MESSAGE_RESP_SIZE (9 + PLAYER_NAME_SIZE)
 
 /**
  * @brief Server constants
@@ -39,9 +41,10 @@
 typedef struct {
     int socket;
     char username[PLAYER_NAME_SIZE];
-    int currentGameID;
-    int isPlaying;
-    int isConnected;
+    int current_game_id;
+    int is_playing;
+    int is_connected;
+    char client_char;
     pthread_t *client_thread;
 } client;
 
@@ -53,7 +56,7 @@ typedef struct {
     char board[BOARD_SIZE][BOARD_SIZE];
     client *player1;
     client *player2;
-    int current_player;
+    client *current_player;
     int game_status;
 } game;
 

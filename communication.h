@@ -4,6 +4,13 @@
 #include "config.h"
 
 /**
+ * @brief Consider message from the client
+ * @param cl client that sent the message
+ * @param message message from the client
+ */
+void serve_message(client *cl, char *message);
+
+/**
  * @brief Send message to the client by socket
  * @return void
  */
@@ -17,9 +24,10 @@ void *send_mess(client *client, char *mess);
 
 /**
  * @brief Recieve message from the client
- * @param arg void pointer (client *)
+ * @param client pointer
  * @return void pointer
  */
-void *receive_messages(void *arg);
+//void *receive_messages(void *arg);
+void receive_messages(client *cl);
 
 #endif

@@ -1,0 +1,71 @@
+#include <stdio.h>
+#include <malloc.h>
+#include <string.h>
+#include <pthread.h>
+#include <stdlib.h>
+
+#include "config.h"
+#include "game_manager.h"
+
+
+pthread_mutex_t mutex_games = PTHREAD_MUTEX_INITIALIZER;
+game *games[MAX_GAMES] = {0};
+
+/**
+ * @brief Count the number of games that are played
+ * @return number of playing games
+ */
+int count_games() {
+    int count = 0;
+    pthread_mutex_lock(&mutex_games);
+    for (int i = 0; i < MAX_GAMES; i++) {
+        if (games[i] != NULL) {
+            count++;
+        }
+    }
+    pthread_mutex_unlock(&mutex_games);
+
+    return count;
+}
+
+game *create_new_game(client *player_1, client *player_2) {
+    if (count_games() >= MAX_GAMES) {
+        printf("Maximum number of games reached\n");
+        return NULL;
+    }
+
+    game *new_game = malloc(sizeof(game));
+    if (new_game == NULL) {
+        perror("Failed to allocate memory for the game");
+        return NULL;
+    }
+
+    pthread_mutex_lock(&mutex_games);
+
+    // Initialize the game
+    new_game->id = rand();
+    new_game->player1 = player_1;
+    initialize_board(new_game->board);
+    new_game->player2 = player_2;
+    new_game->current_player = player_1;
+    new_game->game_status = GAME_PLAYING;
+
+    // Add the game to the list of games
+    for (int i = 0; i < MAX_GAMES; i++) {
+        if (games[i] == NULL) {
+            games[i] = new_game;
+            break;
+        }
+    }
+    pthread_mutex_unlock(&mutex_games);
+
+    return new_game;
+}
+
+void initialize_board(char board[BOARD_SIZE][BOARD_SIZE]) {
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            board[i][j] = ' ';
+        }
+    }
+}

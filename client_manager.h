@@ -3,6 +3,7 @@
 
 #include <pthread.h>
 #include "config.h"
+#include "game_manager.h"
 
 /**
  * Add new client to the array of clients
@@ -12,6 +13,31 @@
  * @return TRUE if client was added, FALSE if client already exists
  */
 int add_client(int socket, char *username, pthread_t *thread);
+
+/**
+ * Find client who is waiting for another player and create a game if there is no waiting player
+ * @param cl client who is ready to play
+ * @return TRUE if game can start, FALSE if there is no waiting player or game was created as first player
+ */
+int find_waiting_player(client *cl);
+
+/**
+ * Get client by his socket
+ * @param socket socket of the client
+ * @return client or NULL if not found
+ */
+client *get_client_by_socket(int socket);
+
+/**
+ * Get count of connected clients
+ * @return count of connected clients
+ */
+int get_connected_clients_count();
+
+/**
+ * Print all clients
+ */
+void print_clients();
 
 /**
  * Remove client
@@ -27,17 +53,8 @@ int remove_client(client *cl);
  */
 int remove_client_by_socket(int socket);
 
-/**
- * Get client by his socket
- * @param socket socket of the client
- * @return client or NULL if not found
- */
-client *get_client_by_socket(int socket);
+void *run_client(void *arg);
 
-/**
- * Get count of connected clients
- * @return count of connected clients
- */
-int get_connected_clients_count();
+
 
 #endif
