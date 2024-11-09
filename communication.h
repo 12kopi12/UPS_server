@@ -4,6 +4,15 @@
 #include "config.h"
 
 /**
+ * @brief Serve client playing game according to status
+ * @param cl client that made move
+ * @param status status of the move
+ * @param x x coordinate
+ * @param y y coordinate
+ */
+void move_response(client *cl, int status, int x, int y);
+
+/**
  * @brief Consider message from the client
  * @param cl client that sent the message
  * @param message message from the client

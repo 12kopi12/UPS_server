@@ -40,11 +40,13 @@ int add_client(int socket, char *username, pthread_t *thread) {
 
 
     cl->socket = socket;
+    strcpy(cl->username, username);
+    cl->current_game_id = GAME_NULL_ID;
     cl->is_playing = FALSE;
     cl->is_connected = TRUE;
+    cl->client_char = EMPTY_CHAR;
+    cl->opponent = NULL;
     cl->client_thread = thread;
-    cl->current_game_id = GAME_NULL_ID;
-    strcpy(cl->username, username);
 
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i] == NULL) {
@@ -62,20 +64,26 @@ int find_waiting_player(client *cl) {
     int found = FALSE;
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i] != NULL && strcmp(clients[i]->username, cl->username) != 0 && clients[i]->is_connected && clients[i]->current_game_id == GAME_NULL_ID) {
+            game *new_game = create_new_game(clients[i], cl);
+            if (new_game == NULL) {
+                break;
+            }
+
             // clients[i] already waits -> has 'X'
-            clients[i]->client_char = 'X';
+            clients[i]->client_char = FIRST_PL_CHAR;
             clients[i]->is_playing = TRUE;
+            clients[i]->current_game_id = new_game->id;
+            clients[i]->opponent = cl;
 
             // Start the game
-            cl->client_char = 'O';
+            cl->client_char = SECOND_PL_CHAR;
             cl->is_playing = FALSE;
-
-            game *new_game = create_new_game(clients[i], cl);
-
             cl->current_game_id = new_game->id;
-            clients[i]->current_game_id = new_game->id;
+            cl->opponent = clients[i];
 
-            send_mess(clients[i], "START_GAME\n");
+            char response[START_GAME_MESSAGE_SIZE] = {0};
+            sprintf(response, "START_GAME;%s;%c;%c\n", clients[i]->opponent->username, clients[i]->opponent->client_char, clients[i]->is_playing ? '1' : '0');
+            send_mess(clients[i], response);
 
             found = TRUE;
             break;
@@ -155,15 +163,17 @@ void *run_client(void *arg) {
 
     char response[LOGIN_MESSAGE_RESP_SIZE] = {0};
     if (found == FALSE) {
-        sprintf(response, "LOGIN;%s;%c\n", cl->username, START_CHAR);
+        sprintf(response, "LOGIN;%s;%c\n", cl->username, FIRST_PL_CHAR);
     } else {
-        sprintf(response, "LOGIN;%s;%c\n", cl->username, END_CHAR);
+        sprintf(response, "LOGIN;%s;%c\n", cl->username, SECOND_PL_CHAR);
     }
     send_mess(cl, response);
 
     if (found == TRUE) {
         // Start the game
-        send_mess(cl, "START_GAME\n");
+        char game_response[START_GAME_MESSAGE_SIZE] = {0};
+        sprintf(game_response, "START_GAME;%s;%c;%c\n", cl->opponent->username, cl->opponent->client_char, cl->is_playing ? '1' : '0');
+        send_mess(cl, game_response);
     }
 
     receive_messages(cl);

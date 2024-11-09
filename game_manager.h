@@ -1,8 +1,8 @@
 /**
 * Define logic for the game Tic-Tac-Toe
 */
-#ifndef __GAME_LOGIC_H__
-#define __GAME_LOGIC_H__
+#ifndef __GAME_MANAGER_H__
+#define __GAME_MANAGER_H__
 
 #include "config.h"
 
@@ -14,6 +14,13 @@
  * @return pointer to the created game
  */
 game *create_new_game(client *player_1, client *player_2);
+
+/**
+ * @brief Finds the game by its ID
+ * @param id ID of the game
+ * @return pointer to the game or NULL if not found
+ */
+game *get_game_by_id(int id);
 
 /**
  * @brief Creates and initialize the game board

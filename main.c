@@ -94,7 +94,7 @@ void * run_server() {
 //            }
 
             recv(client_socket, message, sizeof(message), 0);
-            printf("Message: %s\n", message);
+            printf("Server receives message: %s\n", message);
 
             // check if the message is a login message
             if (strncmp(message, "LOGIN", 5) == 0) {
@@ -105,7 +105,8 @@ void * run_server() {
 
                 // Read the client's username
                 char username[PLAYER_NAME_SIZE];
-                strncpy(username, token, PLAYER_NAME_SIZE);
+                strncpy(username, token, PLAYER_NAME_SIZE - 1);x
+                username[PLAYER_NAME_SIZE - 1] = '\0';
 
                 // Handle the client in a separate thread
                 pthread_t client_thread;

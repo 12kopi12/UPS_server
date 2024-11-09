@@ -62,6 +62,20 @@ game *create_new_game(client *player_1, client *player_2) {
     return new_game;
 }
 
+game *get_game_by_id(int id) {
+    pthread_mutex_lock(&mutex_games);
+    game *result = NULL;
+    for (int i = 0; i < MAX_GAMES; i++) {
+        if (games[i] != NULL && games[i]->id == id) {
+            result = games[i];
+            break;
+        }
+    }
+    pthread_mutex_unlock(&mutex_games);
+
+    return result;
+}
+
 void initialize_board(char board[BOARD_SIZE][BOARD_SIZE]) {
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
