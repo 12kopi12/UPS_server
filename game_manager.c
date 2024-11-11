@@ -7,7 +7,6 @@
 #include "config.h"
 #include "game_manager.h"
 
-
 pthread_mutex_t mutex_games = PTHREAD_MUTEX_INITIALIZER;
 game *games[MAX_GAMES] = {0};
 
@@ -49,6 +48,7 @@ game *create_new_game(client *player_1, client *player_2) {
     new_game->player2 = player_2;
     new_game->current_player = player_1;
     new_game->game_status = GAME_PLAYING;
+    new_game->winner = NULL;
 
     // Add the game to the list of games
     for (int i = 0; i < MAX_GAMES; i++) {

@@ -41,6 +41,9 @@ void serve_message(client *cl, char *message) {
         int y = atoi(token);
         int move_status = validate_move(cl, x, y);
         move_response(cl, move_status, x, y);
+
+        int game_status = validate_game_status(cl, x, y);
+        game_status_response(cl, game_status);
     }
 }
 
@@ -60,12 +63,31 @@ void *send_mess(client *client, char *mess) {
 
 void move_response(client *cl, int status, int x, int y) {
     char response[MOVE_MESS_RESP_SIZE] = {0};
-    sprintf(response, "MOVE;%c;%c;%c\n", '1', x + '0', y + '0');
-    send_mess(cl, response);
 
     if (status == TRUE) {
+        sprintf(response, "MOVE;%c;%c;%c\n", status + '0', x + '0', y + '0');
+        send_mess(cl, response);
+
         char mess[OPP_MOVE_MESSAGE_SIZE] = {0};
         sprintf(mess, "OPP_MOVE;%c;%c\n", x + '0', y + '0');
         send_mess(cl->opponent, mess);
+    }
+    else {
+        sprintf(response, "MOVE;%c;0;0\n", status + '0');
+        send_mess(cl, response);
+    }
+}
+
+void game_status_response(client *cl, int status) {
+    char response[GAME_STATUS_RESP_SIZE] = {0};
+
+    if (status == GAME_WIN) {
+        sprintf(response, "GAME_STATUS;%s\n", cl->username);
+        send_mess(cl, response);
+        send_mess(cl->opponent, response);
+    } else if (status == GAME_DRAW) {
+        sprintf(response, "GAME_STATUS;DRAW\n");
+        send_mess(cl, response);
+        send_mess(cl->opponent, response);
     }
 }

@@ -12,10 +12,13 @@
 #define GAME_PLAYING 1
 #define GAME_WAITING 0
 #define GAME_OVER 2
+#define GAME_WIN 1
+#define GAME_DRAW 2
 #define GAME_NULL_ID 0
 #define FIRST_PL_CHAR 'X'
 #define SECOND_PL_CHAR '0'
 #define EMPTY_CHAR ' '
+#define WINNING_LENGTH 4
 
 /**
  * @brief Error states constants
@@ -36,11 +39,13 @@
 #define PLAYER_NAME_SIZE 21
 #define MESS_DELIMITER ";"
 #define MESS_END_CHAR "\n"
-#define LOGIN_MESSAGE_SIZE (7 + PLAYER_NAME_SIZE)
+#define LOGIN_MESSAGE_SIZE (8 + PLAYER_NAME_SIZE)
 #define LOGIN_MESSAGE_RESP_SIZE (9 + PLAYER_NAME_SIZE)
 #define START_GAME_MESSAGE_SIZE (16 + PLAYER_NAME_SIZE)
-#define MOVE_MESS_RESP_SIZE 11
-#define OPP_MOVE_MESSAGE_SIZE 13
+#define MOVE_MESS_RESP_SIZE 12
+#define OPP_MOVE_MESSAGE_SIZE 14
+#define GAME_STATUS_RESP_SIZE (14 + PLAYER_NAME_SIZE)
+
 /**
  * @brief Server constants
  */
@@ -73,6 +78,7 @@ typedef struct {
     client *player2;
     client *current_player;
     int game_status;
+    client *winner;
 } game;
 
 #endif

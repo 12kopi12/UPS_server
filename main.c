@@ -105,7 +105,7 @@ void * run_server() {
 
                 // Read the client's username
                 char username[PLAYER_NAME_SIZE];
-                strncpy(username, token, PLAYER_NAME_SIZE - 1);x
+                strncpy(username, token, PLAYER_NAME_SIZE - 1);
                 username[PLAYER_NAME_SIZE - 1] = '\0';
 
                 // Handle the client in a separate thread

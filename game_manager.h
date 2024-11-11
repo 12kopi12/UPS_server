@@ -6,6 +6,10 @@
 
 #include "config.h"
 
+/**
+ * @brief Mutex for the games array
+ */
+extern pthread_mutex_t mutex_games;
 
 /**
  * @brief Creates a new game
