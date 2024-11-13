@@ -15,6 +15,12 @@
 int add_client(int socket, char *username, pthread_t *thread);
 
 /**
+ * Clean client's game data
+ * @param cl client to clean
+ */
+void clean_client_game(client *cl);
+
+/**
  * Find client who is waiting for another player and create a game if there is no waiting player
  * @param cl client who is ready to play
  * @return TRUE if game can start, FALSE if there is no waiting player or game was created as first player
@@ -53,7 +59,19 @@ int remove_client(client *cl);
  */
 int remove_client_by_socket(int socket);
 
+/**
+ * Run client thread
+ * @param arg client
+ * @return void pointer
+ */
 void *run_client(void *arg);
+
+/**
+ * Set if client is waiting for a game
+ * @param cl client
+ * @param want_game TRUE if client wants to play, FALSE if not
+ */
+void set_want_game(client *cl, int want_game);
 
 
 

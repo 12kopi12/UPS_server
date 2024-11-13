@@ -33,4 +33,13 @@ game *get_game_by_id(int id);
  */
 void initialize_board(char board[BOARD_SIZE][BOARD_SIZE]);
 
+/**
+ * @brief Check if the game is ended and remove it
+ * @param cl client who made last move
+ * @return TRUE if the game was removed, FALSE if not found
+ */
+int remove_game(client *cl);
+
+void print_games();
+
 #endif

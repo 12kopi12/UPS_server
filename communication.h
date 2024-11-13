@@ -46,4 +46,11 @@ void *send_mess(client *client, char *mess);
 //void *receive_messages(void *arg);
 void receive_messages(client *cl);
 
+/**
+ * @brief Send response to the client that wants to play
+ * @param cl client that wants to play
+ */
+void want_game_response(client *cl);
+
+
 #endif

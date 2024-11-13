@@ -3,6 +3,7 @@
 #include <malloc.h>
 #include <string.h>
 #include <pthread.h>
+#include <unistd.h>
 #include "config.h"
 #include "communication.h"
 
@@ -29,7 +30,6 @@ int add_client(int socket, char *username, pthread_t *thread) {
         pthread_mutex_unlock(&clients_mutex);
         return FALSE;
     }
-
 
     client *cl = malloc(sizeof(client));
     if (cl == NULL) {
@@ -59,11 +59,21 @@ int add_client(int socket, char *username, pthread_t *thread) {
     return TRUE;
 }
 
+void clean_client_game(client *cl) {
+    pthread_mutex_lock(&clients_mutex);
+    cl->current_game_id = GAME_NULL_ID;
+    cl->is_playing = FALSE;
+    cl->client_char = EMPTY_CHAR;
+    cl->opponent = NULL;
+    cl->want_game = FALSE;
+    pthread_mutex_unlock(&clients_mutex);
+}
+
 int find_waiting_player(client *cl) {
     pthread_mutex_lock(&clients_mutex);
     int found = FALSE;
     for (int i = 0; i < MAX_CLIENTS; i++) {
-        if (clients[i] != NULL && strcmp(clients[i]->username, cl->username) != 0 && clients[i]->is_connected && clients[i]->current_game_id == GAME_NULL_ID) {
+        if (clients[i] != NULL && strcmp(clients[i]->username, cl->username) != 0 && clients[i]->is_connected && clients[i]->current_game_id == GAME_NULL_ID && clients[i]->want_game == TRUE) {
             game *new_game = create_new_game(clients[i], cl);
             if (new_game == NULL) {
                 break;
@@ -122,9 +132,10 @@ int get_connected_clients_count() {
 
 void print_clients() {
     pthread_mutex_lock(&clients_mutex);
+    printf("Connected clients: \n");
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i] != NULL /*&& clients[i]->is_connected*/) {
-            printf("Client: %s; Game: %d; Socket: %d\n", clients[i]->username, clients[i]->current_game_id, clients[i]->socket);
+            printf("    Client: %s; Game: %d; Socket: %d\n", clients[i]->username, clients[i]->current_game_id, clients[i]->socket);
         }
     }
     pthread_mutex_unlock(&clients_mutex);
@@ -134,17 +145,28 @@ int remove_client(client *cl) {
     pthread_mutex_lock(&clients_mutex);
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i] == cl) {
-            if (cl->client_thread != NULL) {
-                pthread_cancel(*cl->client_thread);
-            }
+            // close client socket
+            close(cl->socket);
+
+            pthread_t thread = *cl->client_thread;
+//            if (cl->client_thread != NULL) {
+//                pthread_cancel(*cl->client_thread);
+//            }
+
             free(clients[i]);
             clients[i] = NULL;
             pthread_mutex_unlock(&clients_mutex);
+
+            //pthread_cancel(thread);
+//            pthread_join(thread, NULL);
+            print_clients();
             return TRUE;
         }
     }
 
     pthread_mutex_unlock(&clients_mutex);
+    print_clients();
+
     return FALSE;
 }
 
@@ -159,22 +181,29 @@ int remove_client_by_socket(int socket) {
 void *run_client(void *arg) {
     client *cl = (client *) arg;
 
-    int found = find_waiting_player(cl);
+//    int found = find_waiting_player(cl);
 
     char response[LOGIN_MESSAGE_RESP_SIZE] = {0};
-    if (found == FALSE) {
-        sprintf(response, "LOGIN;%s;%c\n", cl->username, FIRST_PL_CHAR);
-    } else {
-        sprintf(response, "LOGIN;%s;%c\n", cl->username, SECOND_PL_CHAR);
-    }
+    sprintf(response, "LOGIN;%s\n", cl->username);
+//    if (found == FALSE) {
+//        sprintf(response, "LOGIN;%s;%c\n", cl->username, FIRST_PL_CHAR);
+//    } else {
+//        sprintf(response, "LOGIN;%s;%c\n", cl->username, SECOND_PL_CHAR);
+//    }
     send_mess(cl, response);
 
-    if (found == TRUE) {
-        // Start the game
-        char game_response[START_GAME_MESSAGE_SIZE] = {0};
-        sprintf(game_response, "START_GAME;%s;%c;%c\n", cl->opponent->username, cl->opponent->client_char, cl->is_playing ? '1' : '0');
-        send_mess(cl, game_response);
-    }
+//    if (found == TRUE) {
+//        // Start the game
+//        char game_response[START_GAME_MESSAGE_SIZE] = {0};
+//        sprintf(game_response, "START_GAME;%s;%c;%c\n", cl->opponent->username, cl->opponent->client_char, cl->is_playing ? '1' : '0');
+//        send_mess(cl, game_response);
+//    }
 
     receive_messages(cl);
+}
+
+void set_want_game(client *cl, int want_game) {
+    pthread_mutex_lock(&clients_mutex);
+    cl->want_game = want_game;
+    pthread_mutex_unlock(&clients_mutex);
 }

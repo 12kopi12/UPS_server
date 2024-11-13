@@ -118,4 +118,3 @@ int validate_move(client *cl, int x, int y) {
     pthread_mutex_unlock(&mutex_games);
     return TRUE;
 }
-

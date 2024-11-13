@@ -18,7 +18,7 @@
 #define FIRST_PL_CHAR 'X'
 #define SECOND_PL_CHAR '0'
 #define EMPTY_CHAR ' '
-#define WINNING_LENGTH 4
+#define WINNING_LENGTH 2
 
 /**
  * @brief Error states constants
@@ -41,6 +41,7 @@
 #define MESS_END_CHAR "\n"
 #define LOGIN_MESSAGE_SIZE (8 + PLAYER_NAME_SIZE)
 #define LOGIN_MESSAGE_RESP_SIZE (9 + PLAYER_NAME_SIZE)
+#define WANT_GAME_RESP_SIZE 13
 #define START_GAME_MESSAGE_SIZE (16 + PLAYER_NAME_SIZE)
 #define MOVE_MESS_RESP_SIZE 12
 #define OPP_MOVE_MESSAGE_SIZE 14
@@ -64,6 +65,7 @@ typedef struct client {
     int is_playing;
     int is_connected;
     char client_char;
+    int want_game;
     client *opponent;
     pthread_t *client_thread;
 } client;

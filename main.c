@@ -109,7 +109,7 @@ void * run_server() {
                 username[PLAYER_NAME_SIZE - 1] = '\0';
 
                 // Handle the client in a separate thread
-                pthread_t client_thread;
+                pthread_t client_thread = 0;
                 printf("Client username: %s\n", username);
 
                 // Add the client to the client manager

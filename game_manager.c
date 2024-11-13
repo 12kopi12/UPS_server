@@ -83,3 +83,31 @@ void initialize_board(char board[BOARD_SIZE][BOARD_SIZE]) {
         }
     }
 }
+
+void print_games() {
+    pthread_mutex_lock(&mutex_games);
+    printf("Games: \n");
+    for (int i = 0; i < MAX_GAMES; i++) {
+        if (games[i] != NULL) {
+            printf("    Game: %d; Player 1: %s; Player 2: %s\n", games[i]->id, games[i]->player1->username, games[i]->player2->username);
+        }
+    }
+    pthread_mutex_unlock(&mutex_games);
+}
+
+int remove_game(client *cl) {
+    pthread_mutex_lock(&mutex_games);
+
+    for (int i = 0; i < MAX_GAMES; i++) {
+        if (games[i] != NULL && games[i]->id == cl->current_game_id && games[i]->game_status == GAME_OVER) {
+            free(games[i]);
+            games[i] = NULL;
+            pthread_mutex_unlock(&mutex_games);
+            print_games();
+            return TRUE;
+        }
+    }
+
+    pthread_mutex_unlock(&mutex_games);
+    return FALSE;
+}
