@@ -20,6 +20,9 @@
 #define EMPTY_CHAR ' '
 #define WINNING_LENGTH 2
 
+#define PING_SLEEP 3
+#define PING_ZOMBIE 10
+
 /**
  * @brief Error states constants
  */
@@ -46,6 +49,7 @@
 #define MOVE_MESS_RESP_SIZE 12
 #define OPP_MOVE_MESSAGE_SIZE 14
 #define GAME_STATUS_RESP_SIZE (14 + PLAYER_NAME_SIZE)
+#define RECONNECT_MESSAGE_SIZE (BOARD_SIZE * BOARD_SIZE + 15 + PLAYER_NAME_SIZE)
 
 /**
  * @brief Server constants
@@ -64,6 +68,8 @@ typedef struct client {
     int current_game_id;
     int is_playing;
     int is_connected;
+    int need_reconnect_mess;
+    time_t last_ping;
     char client_char;
     int want_game;
     client *opponent;

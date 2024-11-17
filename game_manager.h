@@ -20,6 +20,13 @@ extern pthread_mutex_t mutex_games;
 game *create_new_game(client *player_1, client *player_2);
 
 /**
+ * @brief Find the game by the client
+ * @param cl client
+ * @return pointer to the game or NULL if not found
+ */
+game *find_client_game(client *cl);
+
+/**
  * @brief Finds the game by its ID
  * @param id ID of the game
  * @return pointer to the game or NULL if not found

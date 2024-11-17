@@ -142,8 +142,9 @@ void * run_server() {
 
 
 int main(void) {
-    pthread_t server_thread;
+    pthread_t server_thread, ping_thread;
     pthread_create(&server_thread, NULL, run_server, NULL);
+    pthread_create(&ping_thread, NULL, run_ping, NULL);
 
     char input[1024];
     while (scanf("%s", input) != -1) {
@@ -153,6 +154,7 @@ int main(void) {
     }
 
     pthread_join(server_thread, NULL);
+    pthread_join(ping_thread, NULL);
     pthread_cancel(server_thread);
     return 0;
 }

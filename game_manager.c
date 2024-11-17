@@ -62,6 +62,20 @@ game *create_new_game(client *player_1, client *player_2) {
     return new_game;
 }
 
+game *find_client_game(client *cl) {
+    pthread_mutex_lock(&mutex_games);
+    game *result = NULL;
+    for (int i = 0; i < MAX_GAMES; i++) {
+        if (games[i] != NULL && (games[i]->player1 == cl || games[i]->player2 == cl)) {
+            result = games[i];
+            break;
+        }
+    }
+    pthread_mutex_unlock(&mutex_games);
+
+    return result;
+}
+
 game *get_game_by_id(int id) {
     pthread_mutex_lock(&mutex_games);
     game *result = NULL;

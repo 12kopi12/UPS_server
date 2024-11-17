@@ -5,6 +5,11 @@
 #include "config.h"
 #include "game_manager.h"
 
+// clients mutex
+extern pthread_mutex_t clients_mutex;
+
+extern client *clients[MAX_CLIENTS];
+
 /**
  * Add new client to the array of clients
  * @param socket client's socket
@@ -19,6 +24,13 @@ int add_client(int socket, char *username, pthread_t *thread);
  * @param cl client to clean
  */
 void clean_client_game(client *cl);
+
+/**
+ * Client ping
+ * @param cl client
+ * @param is_connected TRUE if client is connected, FALSE if not
+ */
+void client_ping(client *cl, int is_connected);
 
 /**
  * Find client who is waiting for another player and create a game if there is no waiting player

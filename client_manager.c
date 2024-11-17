@@ -44,6 +44,8 @@ int add_client(int socket, char *username, pthread_t *thread) {
     cl->current_game_id = GAME_NULL_ID;
     cl->is_playing = FALSE;
     cl->is_connected = TRUE;
+    cl->need_reconnect_mess = FALSE;
+    cl->last_ping = time(NULL);
     cl->client_char = EMPTY_CHAR;
     cl->opponent = NULL;
     cl->client_thread = thread;
@@ -65,7 +67,14 @@ void clean_client_game(client *cl) {
     cl->is_playing = FALSE;
     cl->client_char = EMPTY_CHAR;
     cl->opponent = NULL;
-    cl->want_game = FALSE;
+//    cl->want_game = FALSE;
+    pthread_mutex_unlock(&clients_mutex);
+}
+
+void client_ping(client *cl, int is_connected) {
+    pthread_mutex_lock(&clients_mutex);
+    cl->is_connected = is_connected;
+    cl->last_ping = time(NULL);
     pthread_mutex_unlock(&clients_mutex);
 }
 
@@ -84,12 +93,14 @@ int find_waiting_player(client *cl) {
             clients[i]->is_playing = TRUE;
             clients[i]->current_game_id = new_game->id;
             clients[i]->opponent = cl;
+            clients[i]->want_game = FALSE;
 
             // Start the game
             cl->client_char = SECOND_PL_CHAR;
             cl->is_playing = FALSE;
             cl->current_game_id = new_game->id;
             cl->opponent = clients[i];
+            cl->want_game = FALSE;
 
             char response[START_GAME_MESSAGE_SIZE] = {0};
             sprintf(response, "START_GAME;%s;%c;%c\n", clients[i]->opponent->username, clients[i]->opponent->client_char, clients[i]->is_playing ? '1' : '0');

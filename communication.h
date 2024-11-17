@@ -39,12 +39,18 @@ void *send_mess_by_socket(int socket, char *mess);
 void *send_mess(client *client, char *mess);
 
 /**
- * @brief Recieve message from the client
+ * @brief Receive message from the client
  * @param client pointer
  * @return void pointer
  */
 //void *receive_messages(void *arg);
 void receive_messages(client *cl);
+
+/**
+ * @brief Controls clients connection
+ * @return void pointer
+ */
+void *run_ping();
 
 /**
  * @brief Send response to the client that wants to play
