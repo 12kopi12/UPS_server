@@ -21,7 +21,7 @@
 #define WINNING_LENGTH 2
 
 #define PING_SLEEP 3
-#define PING_ZOMBIE 10
+#define PING_ZOMBIE 20
 
 /**
  * @brief Error states constants
@@ -49,7 +49,7 @@
 #define MOVE_MESS_RESP_SIZE 12
 #define OPP_MOVE_MESSAGE_SIZE 14
 #define GAME_STATUS_RESP_SIZE (14 + PLAYER_NAME_SIZE)
-#define RECONNECT_MESSAGE_SIZE (BOARD_SIZE * BOARD_SIZE + 15 + PLAYER_NAME_SIZE)
+#define RECONNECT_MESSAGE_SIZE (BOARD_SIZE * BOARD_SIZE + 20 + PLAYER_NAME_SIZE + PLAYER_NAME_SIZE)
 
 /**
  * @brief Server constants

@@ -82,7 +82,7 @@ int find_waiting_player(client *cl) {
     pthread_mutex_lock(&clients_mutex);
     int found = FALSE;
     for (int i = 0; i < MAX_CLIENTS; i++) {
-        if (clients[i] != NULL && strcmp(clients[i]->username, cl->username) != 0 && clients[i]->is_connected && clients[i]->current_game_id == GAME_NULL_ID && clients[i]->want_game == TRUE) {
+        if (clients[i] != NULL && strcmp(clients[i]->username, cl->username) != 0 && /*clients[i]->is_connected &&*/ clients[i]->current_game_id == GAME_NULL_ID && clients[i]->want_game == TRUE) {
             game *new_game = create_new_game(clients[i], cl);
             if (new_game == NULL) {
                 break;
@@ -156,8 +156,10 @@ int remove_client(client *cl) {
     pthread_mutex_lock(&clients_mutex);
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i] == cl) {
+            printf("Remove client: %s found\n", cl->username);
             // close client socket
             close(cl->socket);
+            printf("Remove client: %s socket closed\n", cl->username);
 
             pthread_t thread = *cl->client_thread;
 //            if (cl->client_thread != NULL) {
@@ -166,7 +168,9 @@ int remove_client(client *cl) {
 
             free(clients[i]);
             clients[i] = NULL;
+            printf("Remove client: %s removed\n", cl->username);
             pthread_mutex_unlock(&clients_mutex);
+            printf("Remove client: %s mutex unlocked\n", cl->username);
 
             //pthread_cancel(thread);
 //            pthread_join(thread, NULL);
