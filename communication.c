@@ -92,12 +92,12 @@ void receive_messages(client *cl) {
     while (1) {
         valread = recv(client_socket, message, sizeof(message), 0);
         if (valread <= 0) {
-            printf("Client must be disconnected: %s\n", cl->username);
+            printf("Client must be disconnected...\n");
             close(client_socket);
             remove_client(cl);
             break;
         }
-        printf("Client mess: %s -> %s\n", message, cl->username);
+        printf("Client: %s -> mess: %s", cl->username, message);
         serve_message(cl, message);
         memset(message, 0, sizeof(message));
         valread = 0;
@@ -137,7 +137,7 @@ void reconnect_message(client *cl) {
 }
 
 void *send_mess(client *client, char *mess) {
-    printf("Sending message: %s -> to client %s\n", mess, client->username);
+    printf("Sending client: %s -> message: %s", client->username, mess);
     int client_socket = client->socket;
     send(client_socket, mess, strlen(mess), 0);
     return NULL;
@@ -150,15 +150,12 @@ void serve_message(client *cl, char *message) {
     // check message type
     if (strcmp(token, "MOVE") == 0) {
         // get the second token
-//        token = strtok(NULL, MESS_DELIMITER);
         int x = atoi(strtok(NULL, MESS_DELIMITER));
-//        token = strtok(NULL, MESS_DELIMITER);
         int y = atoi(strtok(NULL, MESS_DELIMITER));
         int move_status = validate_move(cl, x, y);
         int game_status = validate_game_status(cl, x, y);
 
         move_response(cl, move_status, x, y);
-//        usleep(10000);
         game_status_response(cl, game_status);
     } else if (strcmp(token, "WANT_GAME") == 0) {
         want_game_response(cl);
@@ -180,7 +177,7 @@ void serve_message(client *cl, char *message) {
         serve_opp_disconnected(cl, token);
 //        printf("Client %s waits for opponent %s player\n", cl->username, cl->opponent->username);
     } else {
-        printf("Invalid message\n");
+        printf("Invalid message -> remove\n");
         pthread_t thread = *cl->client_thread;
         remove_client(cl);
         pthread_join(thread, NULL);
@@ -188,7 +185,7 @@ void serve_message(client *cl, char *message) {
 }
 
 void *send_mess_by_socket(int socket, char *mess) {
-    printf("Sending message: %s\n", mess);
+    printf("Sending message: %s", mess);
     send(socket, mess, strlen(mess), 0);
     return NULL;
 }

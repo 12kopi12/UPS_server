@@ -50,7 +50,6 @@ int validate_game_status(client *cl, int x, int y) {
 
         // if number of player's chars in the direction is equal or
         //   higher to WINNING_LENGTH, player wins
-        printf("Count in direction: %d\n", count);
         if (count >= WINNING_LENGTH) {
             g->game_status = GAME_OVER;
             g->winner = cl;

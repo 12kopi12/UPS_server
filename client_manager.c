@@ -168,9 +168,7 @@ int remove_client(client *cl) {
 
             free(clients[i]);
             clients[i] = NULL;
-            printf("Remove client: %s removed\n", cl->username);
             pthread_mutex_unlock(&clients_mutex);
-            printf("Remove client: %s mutex unlocked\n", cl->username);
 
             //pthread_cancel(thread);
 //            pthread_join(thread, NULL);
