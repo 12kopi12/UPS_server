@@ -18,7 +18,7 @@
 #define FIRST_PL_CHAR 'X'
 #define SECOND_PL_CHAR '0'
 #define EMPTY_CHAR ' '
-#define WINNING_LENGTH 2
+#define WINNING_LENGTH 4
 
 #define PING_SLEEP 3
 #define PING_ZOMBIE 20
