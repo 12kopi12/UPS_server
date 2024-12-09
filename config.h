@@ -64,6 +64,7 @@ typedef struct client client;
  */
 typedef struct client {
     int socket;
+    int id;
     char username[PLAYER_NAME_SIZE];
     int current_game_id;
     int is_playing;

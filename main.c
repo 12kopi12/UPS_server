@@ -245,10 +245,6 @@ void *run_server() {
     if (strlen(server_info.ip_address) == 0) {
         server_address.sin_addr.s_addr = INADDR_ANY;
         printf("Server is running at INADDR_ANY (all available addresses)\n");
-//    } else if (inet_pton(AF_INET, server_info.ip_address, &server_address.sin_addr) <= 0) {
-//        perror("Invalid IP address");
-//        close(server_socket);
-//        return NULL;
     } else {
         server_address.sin_addr.s_addr = inet_addr(server_info.ip_address);
         printf("Server IP: %s\n", server_info.ip_address);
@@ -288,7 +284,6 @@ void *run_server() {
             char message[LOGIN_MESSAGE_SIZE] = {0};
 
             recv(client_socket, message, sizeof(message), 0);
-            printf("Server receives message: %s\n", message);
 
             char *token = strtok(message, MESS_DELIMITER);
             // check if the message is a login message
@@ -296,10 +291,9 @@ void *run_server() {
             if (strcmp(token, "LOGIN") == 0) {
                 printf("Login message received\n");
                 // delimiter the message
-//               todo char *token = strtok(message, MESS_DELIMITER);
                 token = strtok(NULL, MESS_END_CHAR);
                 if (token == NULL) {
-                    perror("Invalid message");
+                    perror("Invalid message -> close client socket");
                     close(client_socket);
                     continue;
                 }
@@ -311,11 +305,11 @@ void *run_server() {
 
                 // Handle the client in a separate thread
                 pthread_t client_thread = 0;
-                printf("Client username: %s\n", username);
+//                printf("Client username: %s\n", username);
 
                 // Add the client to the client manager
                 if (!add_client(client_socket, username, &client_thread)) {
-                    perror("Failed to add client");
+                    perror("Failed to add client -> close client socket");
                     close(client_socket);
                     continue;
                 }
@@ -334,7 +328,7 @@ void *run_server() {
 //                send_mess(cl, response);
                 print_clients();
             } else {
-                perror("Invalid connection message");
+                perror("Invalid connection message -> close client socket");
                 close(client_socket);
             }
         }

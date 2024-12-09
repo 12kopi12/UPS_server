@@ -52,6 +52,7 @@ int add_client(int socket, char *username, pthread_t *thread) {
 
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i] == NULL) {
+            cl->id = i;
             clients[i] = cl;
             break;
         }
@@ -146,7 +147,7 @@ void print_clients() {
     printf("Connected clients: \n");
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i] != NULL /*&& clients[i]->is_connected*/) {
-            printf("    Client: %s; Game: %d; Socket: %d\n", clients[i]->username, clients[i]->current_game_id, clients[i]->socket);
+            printf("    Client: %d; Game: %d; Socket: %d\n", clients[i]->id, clients[i]->current_game_id, clients[i]->socket);
         }
     }
     pthread_mutex_unlock(&clients_mutex);
@@ -156,15 +157,10 @@ int remove_client(client *cl) {
     pthread_mutex_lock(&clients_mutex);
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i] == cl) {
-            printf("Remove client: %s found\n", cl->username);
+            printf("Remove client: %d found\n", cl->id);
             // close client socket
             close(cl->socket);
-            printf("Remove client: %s socket closed\n", cl->username);
-
-            pthread_t thread = *cl->client_thread;
-//            if (cl->client_thread != NULL) {
-//                pthread_cancel(*cl->client_thread);
-//            }
+            printf("Remove client: %d socket closed\n", cl->id);
 
             free(clients[i]);
             clients[i] = NULL;

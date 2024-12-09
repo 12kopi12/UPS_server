@@ -103,7 +103,7 @@ void print_games() {
     printf("Games: \n");
     for (int i = 0; i < MAX_GAMES; i++) {
         if (games[i] != NULL) {
-            printf("    Game: %d; Player 1: %s; Player 2: %s\n", games[i]->id, games[i]->player1->username, games[i]->player2->username);
+            printf("    Game: %d; Player 1: %d; Player 2: %d\n", games[i]->id, games[i]->player1->id, games[i]->player2->id);
         }
     }
     pthread_mutex_unlock(&mutex_games);
