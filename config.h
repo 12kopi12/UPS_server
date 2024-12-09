@@ -89,4 +89,12 @@ typedef struct {
     client *winner;
 } game;
 
+/**
+ * @brief Struct for server address
+ */
+typedef struct {
+    char ip_address[17];
+    int port;
+} server_address;
+
 #endif
