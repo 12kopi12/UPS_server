@@ -67,31 +67,17 @@ void serve_opp_disconnected(client *cl, char *token) {
         // client wants to wait for opponent -> do nothing
         printf("Client %d waits for opponent %d\n", cl->id, cl->opponent->id);
     } else {
-        // player does not want to wait for opponent -> send game status message and clean client
-//        game *cl_game = find_client_game(cl);
-//        cl_game->game_status = GAME_OVER;
-
-//        char response[GAME_STATUS_RESP_SIZE] = {0};
-//        sprintf(response, "GAME_STATUS;%s\n", cl->username);
-//        send_mess(cl, response);
         ping_game_status_response(cl, GAME_DRAW);
 
         // remove client connection to the game and his opponent
         pthread_mutex_lock(&clients_mutex);
         cl->opponent->opponent = NULL;
-//        cl->opponent->current_game_id = GAME_NULL_ID;
-//        cl->opponent->is_playing = FALSE;
-//        cl->opponent->client_char = EMPTY_CHAR;
         pthread_mutex_unlock(&clients_mutex);
 
         printf("Serve opp disconnected: %d ping status response has been sent\n", cl->id);
 
         clean_client_game(cl);
         printf("Serve opp disconnected: %d game cleaned\n", cl->id);
-
-//        clean_client_game(cl->opponent);
-//        clean_client_game(cl);
-//        remove_game(cl);
     }
 }
 
@@ -188,7 +174,6 @@ void serve_message(client *cl, char *message) {
     } else if (strcmp(token, "OPP_DISCONNECTED") == 0) {
         token = strtok(NULL, MESS_DELIMITER);
         serve_opp_disconnected(cl, token);
-//        printf("Client %s waits for opponent %s player\n", cl->username, cl->opponent->username);
     } else {
         printf("Invalid message -> remove\n");
         pthread_t thread = *cl->client_thread;
@@ -254,9 +239,7 @@ void *run_ping() {
 
                     pthread_mutex_unlock(&clients_mutex);
                     remove_client(clients[i]);
-//                    pthread_mutex_lock(&clients_mutex);
                     pthread_cancel(thread);
-//                    pthread_join(thread, NULL);
                     pthread_mutex_lock(&clients_mutex);
                     printf("Run ping:  Client removed\n");
                 }
