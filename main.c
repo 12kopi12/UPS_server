@@ -14,9 +14,9 @@
 server_address server_info;
 
 /**
- * @brief Validuje IP adresu.
- * @param ip_address IP adresa k validaci.
- * @return 1 pokud je IP adresa platná, jinak 0.
+ * @brief Validates IP address
+ * @param ip_address IP to be validated
+ * @return 1 if IP is good, 0 otherwise
  */
 int validate_ip(const char *ip_address) {
     struct sockaddr_in sa;
@@ -24,9 +24,9 @@ int validate_ip(const char *ip_address) {
 }
 
 /**
- * @brief Nastavuje serverové informace.
- * @param argc Počet argumentů příkazové řádky.
- * @param argv Argumenty příkazové řádky.
+ * @brief Sets server information
+ * @param argc Number of arguments
+ * @param argv Arguments
  */
 void set_server_info(int argc, char *argv[]) {
     // Set the default server address and port
@@ -53,7 +53,7 @@ void set_server_info(int argc, char *argv[]) {
 }
 
 /**
- * Inicializace a spuštění serveru
+ * @brief Initializes and runs the server
  */
 void *run_server() {
     int server_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -148,6 +148,12 @@ void *run_server() {
     }
 }
 
+/**
+ * @brief Entry point of the program
+ * @param argc number of arguments
+ * @param argv arguments
+ * @return
+ */
 int main(int argc, char *argv[]) {
     set_server_info(argc, argv);
 
